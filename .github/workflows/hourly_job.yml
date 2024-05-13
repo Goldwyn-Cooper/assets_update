@@ -1,0 +1,30 @@
+name: daily-monitoring
+on:
+    schedule:
+        - cron: '15 * * * *'
+    workflow_dispatch:
+jobs:
+    monitoring_by_schedule:
+        runs-on: ubuntu-latest
+        permissions:
+          issues: write
+        steps:
+            - name: 저장소 체크아웃
+              uses: actions/checkout@v4
+
+            - name: 파이썬 셋업
+              uses: actions/setup-python@v5
+              with:
+                python-version: '3.12'
+                
+            - name: 의존성 설치
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r requirements.txt
+          
+            - name: 모니터링 실행
+              env:
+                AIRTABLE_API_TOKEN: ${{ secrets.AIRTABLE_API_TOKEN }}
+                AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+                AIRTABLE_TABLE_ID: ${{ secrets.AIRTABLE_TABLE_ID }}
+              run: python main.py
