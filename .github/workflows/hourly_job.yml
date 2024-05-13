@@ -1,4 +1,4 @@
-name: daily-monitoring
+name: hourly-monitoring
 on:
     schedule:
         - cron: '15 * * * *'
