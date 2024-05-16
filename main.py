@@ -19,7 +19,7 @@ def get_data():
     df = pd.DataFrame(fields)
     df['ID'] = ids
     df.set_index('ID', inplace=True)
-    return df
+    return df.dropna()
 
 def put_data(ids, data):
     base_id = os.getenv('AIRTABLE_BASE_ID')
@@ -37,6 +37,7 @@ def put_data(ids, data):
             'fields': data,
         }
         records.append(record)
+    # print(records)
     response = requests.patch(URL, headers=headers, json={'records': records})
     response.raise_for_status()
 
@@ -91,7 +92,10 @@ if __name__ == '__main__':
     data = get_data()
     print('🪴 Update Currency')
     currency = update_currency()
-    put_data(data.query('Currency != 1').index, {'Currency': currency})
+    # put_data(data.query('Currency != 1').index, {'Currency': currency})
+    for id, rows in data.iterrows():
+        if rows['Currency'] != 1:
+            put_data([id], {'Currency': currency})
     print('🪴 Update KRX')
     krx = data.query('Category == "한국증권"')
     for id, rows in krx.iterrows():
